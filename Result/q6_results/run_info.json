@@ -1,0 +1,21 @@
+{
+  "mat": "E:/Various Net/XJTUxch/data/loco_20170301_05.mat",
+  "outdir": "E:/Various Net/XJTUxch/data\\q6_results",
+  "win_ms": 64,
+  "smooth_sigma_s": 0.02,
+  "min_rate_hz": 0.5,
+  "tuning_r2_thr": 0.15,
+  "n_angle_bins": 12,
+  "min_speed": 0.001,
+  "alpha": 1.0,
+  "splits": 5,
+  "psth_n": 6,
+  "seed": 0,
+  "n_units": 507,
+  "n_time": 18114,
+  "region_counts": {
+    "Other": 328,
+    "M1": 90,
+    "S1": 89
+  }
+}
