@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 """
 q6_mat_main.py — 一键从 .mat 读取并完成 Q6：方向调谐 + 岭回归解码 + 可视化
 输出：与 .mat 同目录的 q6_results/ 下生成 CSV 和 PNG 图
 """
-
-# ==== 只需改这里：你的 .mat 文件路径 ====
 MAT_PATH = r"E:/Various Net/XJTUxch/data/loco_20170301_05.mat"
 
 # ==== 常用参数（可按需微调）====
@@ -37,7 +34,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import r2_score
 
-# ================== HDF5/Mat 读取工具 ==================
+# HDF5/Mat 读取工具
 def find_dataset_group(root, keywords):
     """在 HDF5 层次结构中递归查找名字包含关键字的数据集/组。"""
     for k in root.keys():
@@ -114,7 +111,7 @@ def align_channel_names(ch_names, n_units):
         ch_names = ch_names[:n_units]
     return ch_names
 
-# ================== 会话读取 ==================
+# 会话读取
 def load_session(path, prefer_finger=True, verbose=True):
     """
     返回：
@@ -189,7 +186,7 @@ def load_session(path, prefer_finger=True, verbose=True):
             'spike_list': spike_list, 'spike_matrix': spike_matrix,
             'ch_names': ch_names}
 
-# ================== 发放率（分箱+平滑） ==================
+# 发放率（分箱+平滑）
 def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True):
     t = session['t']
     spike_list = session.get('spike_list', None)
@@ -245,7 +242,7 @@ def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True
         print(f"  Binned rates: {rates.shape}, source={source}, win_s={win_s}s")
     return rates, centers
 
-# ================== 运动学插值 ==================
+
 def compute_kinematics(t_samples, pos_samples, bin_centers):
     fx = interpolate.interp1d(t_samples, pos_samples[:,0], bounds_error=False, fill_value="extrapolate")
     fy = interpolate.interp1d(t_samples, pos_samples[:,1], bounds_error=False, fill_value="extrapolate")
@@ -265,7 +262,7 @@ def parse_region_from_name(name: str) -> str:
     if token == 's1' or s.startswith('s1'): return 'S1'
     return 'Other'
 
-# ================== 调谐/解码 ==================
+
 def cos_func(theta, A, PD, b):
     return A * np.cos(theta - PD) + b
 
@@ -329,7 +326,7 @@ def decode_velocity_ridge(rates, vel_binned, alpha=1.0, n_splits=5):
         scores.append([r2_score(y[te][:,0], p[:,0]), r2_score(y[te][:,1], p[:,1])])
     return np.nanmean(np.array(scores, float), axis=0)
 
-# ================== 画图 ==================
+
 def plot_sample_psth(rates, centers, still_mask, neuron_indices, outpath):
     n = len(neuron_indices)
     fig, axes = plt.subplots(n, 1, figsize=(10, 2.2*n), sharex=True)
@@ -377,7 +374,6 @@ def plot_sample_tuning_curves(rates, vel_binned, neurons, centers_ang, outpath):
     fig.suptitle("Example tuning curves")
     fig.tight_layout(); fig.savefig(outpath, dpi=150); plt.close(fig)
 
-# ================== 主流程（一键） ==================
 def main():
     assert os.path.exists(MAT_PATH), f"找不到 .mat 文件：{MAT_PATH}"
     outdir = os.path.join(os.path.dirname(MAT_PATH), "q6_results")

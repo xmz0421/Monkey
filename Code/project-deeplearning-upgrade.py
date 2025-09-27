@@ -11,9 +11,9 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
-# ------------------------
+
 # Reproducibility
-# ------------------------
+
 SEED = 42
 np.random.seed(SEED)
 random.seed(SEED)
@@ -21,9 +21,9 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-# ------------------------
+
 # Dataset & Preprocessing utils
-# ------------------------
+
 def find_dataset_group(root, keywords):
     for k in root.keys():
         lower = k.lower()
@@ -104,9 +104,9 @@ def process_and_save_session(path, out_path, win_ms=64, min_rate_hz=0.5, smooth_
                         bin_centers=bin_centers.astype(np.float32))
     return out_path
 
-# ------------------------
+
 # Dataset for sequences
-# ------------------------
+
 class SeqDataset(Dataset):
     def __init__(self,X,Z,window):
         self.X=X;self.Z=Z;self.window=window;self.half=window//2
@@ -122,9 +122,9 @@ def compute_test_times(bin_centers,T_total,i_val,window):
     half=window//2
     return bin_centers[i_val+half:T_total-half]
 
-# ------------------------
+
 # Model: CNN+BiLSTM
-# ------------------------
+
 class CNNBiLSTM(nn.Module):
     def __init__(self,n_channels,window,out_dim=6,dropout=0.25):
         super().__init__()
@@ -140,9 +140,9 @@ class CNNBiLSTM(nn.Module):
         h=torch.cat([hn[0],hn[1]],dim=1)
         return self.fc(h)
 
-# ------------------------
+
 # Training with Δ-loss + smoothing
-# ------------------------
+
 def train_deep_decoder(npzfile,window=25,epochs=60,train_frac=0.7,val_frac=0.1,
                        batch_size=128,lr=1e-3,device=None):
     data=np.load(npzfile,allow_pickle=True)
@@ -204,9 +204,9 @@ def train_deep_decoder(npzfile,window=25,epochs=60,train_frac=0.7,val_frac=0.1,
     snrs=[-10*math.log10(1-r2) if (r2<1 and r2>-np.inf) else np.nan for r2 in r2s]
     return {'model':model,'preds':preds,'trues':trues,'r2s':r2s,'snrs':snrs,'mses':mses,'bin_centers_test':bin_test}
 
-# ------------------------
+
 # Plot
-# ------------------------
+
 def plot_pred_vs_gt_grid(res,time_window_sec=6.0):
     preds,trues=res['preds'],res['trues'];times=res['bin_centers_test']
     pred_pos,pred_vel,pred_acc=preds[:,:2],preds[:,2:4],preds[:,4:6]
@@ -225,9 +225,9 @@ def plot_pred_vs_gt_grid(res,time_window_sec=6.0):
                     transform=ax.transAxes,fontsize=8,bbox=dict(facecolor='white',alpha=0.6))
     plt.tight_layout();plt.show()
 
-# ------------------------
+
 # Main
-# ------------------------
+
 if __name__=="__main__":
     session_file=r"E:/Various Net/XJTUxch/data/loco_20170301_05.mat"
     out_npz="深度学习——优化.npz"

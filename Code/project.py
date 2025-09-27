@@ -24,9 +24,9 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 
-# -------------------------
+
 # Utility: find dataset by keyword (recursive)
-# -------------------------
+
 def find_dataset_group(root, keywords):
     """
     Recursively search HDF5 group/dataset keys for any keyword substring (case-insensitive).
@@ -44,9 +44,7 @@ def find_dataset_group(root, keywords):
                 return found
     return None
 
-# -------------------------
-# Robust loader for your .mat (NWB/HDF5) structure
-# -------------------------
+
 def load_session(path, prefer_finger=True, verbose=True):
     """
     Load t (timestamps), pos (T,2) (prefer finger_pos), and spikes as list-of-arrays of spike times (seconds).
@@ -177,9 +175,9 @@ def load_session(path, prefer_finger=True, verbose=True):
             'spike_matrix': spike_matrix, 'ch_names': ch_names}
 
 
-# -------------------------
+
 # Binning & smoothing
-# -------------------------
+
 def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True):
     """
     session: dict returned by load_session
@@ -260,9 +258,9 @@ def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True
     return rates, bin_centers
 
 
-# -------------------------
+
 # Kinematics: pos, vel, acc aligned to bin centers
-# -------------------------
+
 def compute_kinematics(t_samples, pos_samples, bin_centers):
     """
     Interpolate position to bin_centers and compute velocity/acceleration.
@@ -278,9 +276,9 @@ def compute_kinematics(t_samples, pos_samples, bin_centers):
     return pos, vel, acc
 
 
-# -------------------------
+
 # process & save preprocessed data (.npz)
-# -------------------------
+
 def process_and_save_session(path, out_path, win_ms=64, min_rate_hz=0.5, smooth_sigma_s=0.02, prefer_finger=True, verbose=True):
     """
     Full preprocessing pipeline:
@@ -310,9 +308,9 @@ def process_and_save_session(path, out_path, win_ms=64, min_rate_hz=0.5, smooth_
     return out_path
 
 
-# -------------------------
+
 # PyTorch dataset & model (linear multi-output)
-# -------------------------
+
 class NeuralDataset(Dataset):
     def __init__(self, X, Y):
         self.X = X.astype(np.float32)
@@ -327,9 +325,7 @@ class LinearDecoder(nn.Module):
     def forward(self, x): return self.lin(x)
 
 
-# -------------------------
 # Train multi-output linear decoder and return test preds/trues
-# -------------------------
 def train_multi_decoder(npzfile, train_frac=0.7, val_frac=0.1, epochs=40, batch_size=256, lr=1e-3, device='cpu', verbose=True):
     """
     Train one linear model to predict [pos_x, pos_y, vel_x, vel_y, acc_x, acc_y] (6 outputs).
@@ -443,18 +439,10 @@ def train_multi_decoder(npzfile, train_frac=0.7, val_frac=0.1, epochs=40, batch_
     }
 
 
-# -------------------------
-# Plot Pred vs GT in a 2x3 grid
-# -------------------------
-def plot_pred_vs_gt_grid(result_dict, time_window_sec=6.0, savepath=None):
-    """
-    result_dict: returned from train_multi_decoder
-    Plot arrangement:
-        columns: Position | Velocity | Acceleration
-        rows: x (top), y (bottom)
 
-    time_window_sec: width of the plotting window (seconds) centered in test set
-    """
+# Plot Pred vs GT in a 2x3 grid
+
+def plot_pred_vs_gt_grid(result_dict, time_window_sec=6.0, savepath=None):
     preds = result_dict['preds']   # (T_test, 6)
     trues = result_dict['trues']
     times = result_dict['bin_centers_test']
@@ -503,9 +491,9 @@ def plot_pred_vs_gt_grid(result_dict, time_window_sec=6.0, savepath=None):
     plt.show()
 
 
-# -------------------------
+
 # Cosine tuning analysis with nice plots
-# -------------------------
+
 def cosine_tuning(theta, b, a, phi):
     return b + a * np.cos(theta - phi)
 
@@ -546,7 +534,7 @@ def analyze_cosine_tuning(npzfile, n_show=10, top_k=100, savepath=None):
     n_show = min(n_show, len(results_sorted))
     top_k = min(top_k, len(results_sorted))
 
-    # ---------- Plot 10 histograms (2 x 5) ----------
+    # Plot 10 histograms (2 x 5)
     theta_grid = np.linspace(0, 2*np.pi, 400)
     theta_deg_grid = np.degrees(theta_grid)
     fig, axes = plt.subplots(2, 5, figsize=(18, 7))
@@ -617,9 +605,9 @@ def analyze_cosine_tuning(npzfile, n_show=10, top_k=100, savepath=None):
     return results_sorted
 
 
-# -------------------------
-# Main entry: run the full pipeline and produce figures
-# -------------------------
+
+
+
 if __name__ == "__main__":
     # === User-specific path ===
     session_file = r"E:/Various Net/XJTUxch/data/loco_20170301_05.mat"

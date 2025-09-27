@@ -19,9 +19,9 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import numpy.linalg as npl
 
-# -------------------------
+
 # Utility
-# -------------------------
+
 def find_dataset_group(root, keywords):
     for k in root.keys():
         lower = k.lower()
@@ -35,9 +35,9 @@ def find_dataset_group(root, keywords):
                 return found
     return None
 
-# -------------------------
+
 # Load session (dereference spikes), prefer finger_pos
-# -------------------------
+
 def load_session(path, prefer_finger=True, verbose=True):
     if verbose:
         print(f"[load_session] opening {path}")
@@ -129,9 +129,9 @@ def load_session(path, prefer_finger=True, verbose=True):
             print(f"  loaded spikes for {len(spike_list)} units")
     return {'t': np.asarray(t).ravel(), 'pos': np.asarray(pos), 'spike_list': spike_list}
 
-# -------------------------
+
 # Binning & smoothing
-# -------------------------
+
 def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True):
     t = session['t']
     spike_list = session['spike_list']
@@ -158,9 +158,9 @@ def compute_binned_rates(session, win_s=0.064, smooth_sigma_s=None, verbose=True
         print(f"[binning] rates shape: {rates.shape}, bins: {n_bins}, win_s={win_s}")
     return rates, bin_centers
 
-# -------------------------
+
 # compute kinematics
-# -------------------------
+
 def compute_kinematics(t_samples, pos_samples, bin_centers):
     fx = interpolate.interp1d(t_samples, pos_samples[:, 0], bounds_error=False, fill_value="extrapolate")
     fy = interpolate.interp1d(t_samples, pos_samples[:, 1], bounds_error=False, fill_value="extrapolate")
@@ -170,9 +170,9 @@ def compute_kinematics(t_samples, pos_samples, bin_centers):
     acc = np.gradient(vel, axis=0) / dt.reshape(-1, 1)
     return pos, vel, acc
 
-# -------------------------
+
 # preprocess & save
-# -------------------------
+
 def process_and_save_session(path, out_path, win_ms=64, min_rate_hz=0.5, smooth_sigma_s=0.02):
     sess = load_session(path, prefer_finger=True, verbose=True)
     rates, bin_centers = compute_binned_rates(sess, win_s=win_ms/1000.0, smooth_sigma_s=smooth_sigma_s, verbose=True)
@@ -191,9 +191,9 @@ def process_and_save_session(path, out_path, win_ms=64, min_rate_hz=0.5, smooth_
     print(f"[process] saved {out_path}, kept units={len(keep_idx)}")
     return out_path
 
-# ============================================================
+
 # Supervised Kalman (improved with intercept)
-# ============================================================
+
 def fit_supervised_kalman_with_bias(npzfile, train_frac=0.7, val_frac=0.1, reg=1e-3, verbose=True):
     """
     Fit A (state dynamics), and observation C0 and bias d via ridge regression on training data.
@@ -356,9 +356,9 @@ def train_and_eval_kalman_improved(npzfile, train_frac=0.7, val_frac=0.1, reg=1e
         'i_test_start': i_test
     }
 
-# -------------------------
+
 # plotting same 2x3 layout
-# -------------------------
+
 def plot_pred_vs_gt_grid(result_dict, time_window_sec=6.0, savepath=None):
     preds = result_dict['preds']
     trues = result_dict['trues']
@@ -398,9 +398,9 @@ def plot_pred_vs_gt_grid(result_dict, time_window_sec=6.0, savepath=None):
         print(f"Saved figure to {savepath}")
     plt.show()
 
-# -------------------------
+
 # main
-# -------------------------
+
 if __name__ == "__main__":
     session_file = r"E:/Various Net/XJTUxch/data/loco_20170215_02.mat"
     out_npz = "卡尔曼模型.npz"
